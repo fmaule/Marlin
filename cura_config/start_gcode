@@ -1,0 +1,13 @@
+G21       ; Metric Unit
+G90       ; Absolute positioning
+M82       ; Set extruder to Absolute mode
+M107      ; Start with fan OFF
+G28 X0 Y0 ; Move X/Y to MIN
+G28 Z0    ; Move Z to MIN
+G29 A1    ; Enable unified bed leveling
+G1 Z15.0 F9000 ; Move Z UP 15MM to prime nozzle
+G92 E0         ; Zero the extruded length
+G1 F200 E4     ; Extrude 4mm (prime nozzle)
+G92 E0         ; Zero the extruded length
+G1 F9000       ; Set speed?
+M117 Printing...
