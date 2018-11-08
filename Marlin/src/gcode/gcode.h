@@ -63,6 +63,7 @@
  * G31  - Dock sled (Z_PROBE_SLED only)
  * G32  - Undock sled (Z_PROBE_SLED only)
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
+ * G34  - Z Stepper automatic alignment using probe: I<iterations> T<accuracy> A<amplification> (Requires Z_STEPPER_AUTO_ALIGN)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
@@ -170,7 +171,7 @@
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  * M221 - Set Flow Percentage: "M221 S<percent>"
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>"
- * M240 - Trigger a camera to take a photograph. (Requires CHDK or PHOTOGRAPH_PIN)
+ * M240 - Trigger a camera to take a photograph. (Requires CHDK_PIN or PHOTOGRAPH_PIN)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
@@ -197,11 +198,13 @@
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
+ * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
+ * M524 - Abort the current SD print job (started with M24)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -248,9 +251,7 @@
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
  */
-
-#ifndef _GCODE_H_
-#define _GCODE_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
@@ -290,14 +291,15 @@ public:
   static bool get_target_extruder_from_command();
   static void get_destination_from_command();
   static void process_parsed_command(
-    #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    #if USE_EXECUTE_COMMANDS_IMMEDIATE
       const bool no_ok = false
     #endif
   );
   static void process_next_command();
 
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     static void process_subcommands_now_P(PGM_P pgcode);
+    static void process_subcommands_now(char * gcode);
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
@@ -341,7 +343,7 @@ public:
 private:
 
   static void G0_G1(
-    #if IS_SCARA || ENABLED(G0_FEEDRATE)
+    #if IS_SCARA || defined(G0_FEEDRATE)
       bool fast_move=false
     #endif
   );
@@ -406,6 +408,11 @@ private:
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     static void G33();
+  #endif
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    static void G34();
+    static void M422();
   #endif
 
   #if ENABLED(G38_PROBE_TARGET)
@@ -563,7 +570,7 @@ private:
     static void M190();
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     static void M145();
   #endif
 
@@ -624,7 +631,7 @@ private:
   static void M221();
   static void M226();
 
-  #if defined(CHDK) || HAS_PHOTOGRAPH
+  #if PIN_EXISTS(CHDK) || HAS_PHOTOGRAPH
     static void M240();
   #endif
 
@@ -719,6 +726,10 @@ private:
     static void M504();
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    static void M524();
+  #endif
+
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     static void M540();
   #endif
@@ -736,7 +747,7 @@ private:
     static void M665();
   #endif
 
-  #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+  #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
     static void M666();
   #endif
 
@@ -816,5 +827,3 @@ private:
 };
 
 extern GcodeSuite gcode;
-
-#endif // _GCODE_H_

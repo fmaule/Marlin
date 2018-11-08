@@ -1,42 +1,41 @@
 /**
-   Marlin 3D Printer Firmware
-   Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-
-   Based on Sprinter and grbl.
-   Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
-
-   This program is free software: youn can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
 
 /**
-   Configuration.h
-
-   Basic settings such as:
-  X_PROBE_OFFSET_FROM_EXTRUDER
-   - Type of electronics
-   - Type of temperature sensor
-   - Printer geometry
-   - Endstop configuration
-   - LCD controller
-   - Extra features
-
-   Advanced settings can be found in Configuration_adv.h
-
-*/
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+ * Configuration.h
+ *
+ * Basic settings such as:
+ *
+ * - Type of electronics
+ * - Type of temperature sensor
+ * - Printer geometry
+ * - Endstop configuration
+ * - LCD controller
+ * - Extra features
+ *
+ * Advanced settings can be found in Configuration_adv.h
+ *
+ */
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
@@ -156,17 +155,6 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
-#if ENABLED(SINGLENOZZLE)
-// Parameters for filament retract / prime on toolchange
-#define SINGLENOZZLE_SWAP_LENGTH          12  // (mm)
-#define SINGLENOZZLE_SWAP_RETRACT_SPEED 3600  // (mm/m)
-#define SINGLENOZZLE_SWAP_PRIME_SPEED   3600  // (mm/m)
-//#define SINGLENOZZLE_SWAP_PARK
-#if ENABLED(SINGLENOZZLE_SWAP_PARK)
-#define SINGLENOZZLE_TOOLCHANGE_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
-#define SINGLENOZZLE_PARK_XY_FEEDRATE 6000  // (mm/m)
-#endif
-#endif
 
 /**
    Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
@@ -793,6 +781,13 @@
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+// A probe deployed by moving the x-axis, such as the Wilson II's rack-and-pinion probe designed by Marty Rice.
+//#define RACK_AND_PINION_PROBE
+#if ENABLED(RACK_AND_PINION_PROBE)
+  #define Z_PROBE_DEPLOY_X  X_MIN_POS
+  #define Z_PROBE_RETRACT_X X_MAX_POS
+#endif
+
 //
 // For Z_PROBE_ALLEN_KEY see the Delta example configurations.
 //
@@ -949,9 +944,6 @@
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 240
-
-// Z raise distance for tool-change, as needed for some extruders
-#define TOOLCHANGE_ZRAISE     2  // (mm)
 
 /**
    Software Endstops
@@ -1178,8 +1170,9 @@
 //#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
-#define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
-#define LCD_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
+  #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
+  #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
+  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
@@ -1334,10 +1327,12 @@
 // @section temperature
 
 // Preheat Constants
+#define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 190
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
+#define PREHEAT_2_LABEL       "ABS"
 #define PREHEAT_2_TEMP_HOTEND 240
 #define PREHEAT_2_TEMP_BED     90
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
@@ -1462,15 +1457,15 @@
 // @section lcd
 
 /**
-   LCD LANGUAGE
-
-   Select the language to display on the LCD. These languages are available:
-
-      en, an, bg, ca, cz, de, el, el-gr, es, eu, fi, fr, gl, hr, it, jp-kana,
-      ko_KR, nl, pl, pt, pt-br, ru, sk, tr, uk, zh_CN, zh_TW, test
-
-   :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp-kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
-*/
+ * LCD LANGUAGE
+ *
+ * Select the language to display on the LCD. These languages are available:
+ *
+ *    en, an, bg, ca, cz, da, de, el, el-gr, es, eu, fi, fr, gl, hr, it,
+ *    jp-kana, ko_KR, nl, pl, pt, pt-br, ru, sk, tr, uk, zh_CN, zh_TW, test
+ *
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp-kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ */
 #define LCD_LANGUAGE en
 
 /**
@@ -1498,12 +1493,19 @@
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 
 /**
-   SD CARD
+ * Info Screen Style (0:Classic, 1:Prusa)
+ *
+ * :[0:'Classic', 1:'Prusa']
+ */
+#define LCD_INFO_SCREEN_STYLE 0
 
-   SD Card support is disabled by default. If your controller has an SD slot,
-   you must uncomment the following option or it won't work.
-
-*/
+/**
+ * SD CARD
+ *
+ * SD Card support is disabled by default. If your controller has an SD slot,
+ * you must uncomment the following option or it won't work.
+ *
+ */
 #define SDSUPPORT
 
 /**
@@ -2028,5 +2030,3 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
-
-#endif // CONFIGURATION_H

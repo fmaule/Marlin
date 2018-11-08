@@ -59,23 +59,23 @@ class TFilamentSensor : public FilamentSensorBase {
       sensor.setup();
     }
 
-    inline static void reset() {
+    static inline void reset() {
       filament_ran_out = false;
       response.reset();
     }
 
     // The sensor calls this method when filament is present
-    inline static void filament_present(const uint8_t extruder) {
+    static inline void filament_present(const uint8_t extruder) {
       response.filament_present(extruder);
     }
 
-    inline static void block_complete(const block_t *b) {
+    static inline void block_complete(const block_t *b) {
       response.block_complete(b);
       sensor.block_complete(b);
     }
 
     static void run() {
-      if (enabled && !filament_ran_out && (IS_SD_PRINTING || print_job_timer.isRunning())) {
+      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning())) {
         response.run();
         sensor.run();
         if (response.has_runout()) {
@@ -167,6 +167,10 @@ class FilamentSensorTypeSwitch : public FilamentSensorTypeBase {
         return runout_bits;                     // A single sensor applying to all extruders
       #else
         #if ENABLED(DUAL_X_CARRIAGE)
+          if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE)
+            return runout_bits;                 // Any extruder
+          else
+        #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
           if (extruder_duplication_enabled)
             return runout_bits;                 // Any extruder
           else

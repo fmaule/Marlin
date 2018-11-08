@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * HAL_LPC1768/HAL.h
  * Hardware Abstraction Layer for NXP LPC1768
  */
-
-#ifndef _HAL_LPC1768_H_
-#define _HAL_LPC1768_H_
 
 #define CPU_32_BIT
 #define HAL_INIT
@@ -37,7 +35,7 @@ void HAL_init();
 #include <stdarg.h>
 #include <algorithm>
 
-extern "C" volatile uint32_t _millis;
+extern "C" volatile millis_t _millis;
 
 #include <Arduino.h>
 #include <pinmapping.h>
@@ -156,5 +154,3 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 
 #define HAL_IDLETASK 1
 void HAL_idletask(void);
-
-#endif // _HAL_LPC1768_H_
