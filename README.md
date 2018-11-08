@@ -1,3 +1,27 @@
+# This is a fork with the configuration for my Anet A8.
+
+#### Current setup:
+
+- Keyestudio MKS 1.4 GEN
+- Dealit 3D Mosfet
+- A4988 Drivers (still have to switch to PoPprint DRV8825)
+- ARCELI Controller Smart Card 1286 Full Graphics LCD
+- LJC18A3-H-Z/BX sensor @12V with EL817 phototransistor (DO NOT use it @5v! even if it works, it loses A LOT of sensibility)
+- Velleman GP8200 Glass bed
+
+[Unified Bed Leveling](http://marlinfw.org/docs/features/unified_bed_leveling.html) enabled (and it's **awesome**)
+
+Use the 2.0.x branch: https://github.com/fmaule/Marlin/tree/bugfix-2.0.x
+
+
+Don't forget to customize your parameters:
+
+- Z_DRIVER_TYPE (+ X,Y,Z,E0/1)
+- DEFAULT_AXIS_STEPS_PER_UNIT
+- PROBE_OFFSET_FROM_EXTRUDER (I'm using [this](https://www.thingiverse.com/thing:2368157) rear sensor mount)
+
+---
+
 # Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
